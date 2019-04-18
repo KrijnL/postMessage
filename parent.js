@@ -10,7 +10,7 @@ iframe.onload = sendMessages
 //Send a message using postMessage
 function sendMessages(){
     var message = {
-        action: "action",
+        action: "ivalid",
         data: "data"
     }
 
@@ -21,5 +21,5 @@ function sendMessages(){
     
     //The data that is sent needs to be a string for compatibility with IE
     //Syntax is postMessage(data, targetOrigin)
-    win.postMessage(JSON.stringify(message), "https://example.com")
+    win.postMessage(JSON.stringify(message), "http://example.com")
 }

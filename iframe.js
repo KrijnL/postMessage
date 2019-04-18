@@ -9,11 +9,11 @@ window.addEventListener("message", handleMessage, false)
 
 function handleMessage(event){
     //Check the origin of the sent message
-    if(event.origin !== "https://example.com"){
+    if(event.origin !== "http://example.com"){
         console.log("My mummy says I'm not allowed to talk to strangers")
-        return
+        //return
     }
-
+    console.log(event.data);
     //HANDLE EVENT HERE
     var data = JSON.parse(event.data);
 

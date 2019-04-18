@@ -1,5 +1,19 @@
 #wrapper {
-   width: 80%;
+   width: 90%;
    margin: 0 auto;
-   margin-top: 30px; 
+   padding: 3% 2%;
+   margin-bottom: 0;
+   box-shadow: 0 5px 5px #888;
+   background-color: #FFF;
+}
+
+body {
+   margin: 0;
+   height: 100%;
+   background-color: #EEE;
+}
+
+p:last-of-type {
+   padding-bottom: 0;
+   margin-bottom: 0;
 }

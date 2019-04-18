@@ -18,9 +18,9 @@
             </p>
             <p>
                 Often you will want some form of communication between an iframe and a page it's in. This is why the postMessage function exists. If both the parent and the iframe agree to send ad recieve messages, they can communicate with each other.
-                There are however some security concerns if the way in which they comunicate isn't implemented properly, so I'm going to explain which concerns there are and how to mitigate them. Let's start by creating a parent HTML document and an iframe to go inside it.
+                There are however some security concerns if the way in which they comunicate isn't implemented properly. I'm going to explain which concerns there are and how to mitigate them. Let's start by creating a parent HTML document and an iframe to go inside it.
             </p>
-            <h3>Parent window's HTML</h3>
+            <h3>Parent window</h3>
             <pre><code class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
     &lt;head&gt;
@@ -33,7 +33,7 @@
 &lt;/html&gt;
             </code></pre>
             <br/>
-            <h3>Iframe's HTML</h3>
+            <h3>Iframe</h3>
             <pre><code class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
     &lt;head&gt;
@@ -71,7 +71,7 @@ function sendMessages(){
     //postMessage is a function defined on the window object of an iframe
     let win = iframe.contentWindow;
     //You can also get the iframe from the window.frames object if you give it a name attribute
-    win = window.frames.iframe.contentWindow;
+    //win = window.frames.iframe.contentWindow;
     
     //The data that is sent needs to be a string for compatibility with IE
     //Syntax is postMessage(data, targetOrigin)
@@ -101,7 +101,7 @@ function sendMessages(){
             </table>
             <br/>
             <p>To only accept messages from trusted sources, <b>you should always check the origin property.</b> After you have done this, <b>it is important to also check if the recieved message uses the correct syntax.</b> It is possible that a trusted oigin has an XSS vulnerability, which will allow an attacker to craft messages sent via postMessage. Finally, if any of the data recieved is reflected back to the DOM, <b>make sure to correctly sanitize the values.</b></p>
-            <p>Replying to the parent window is as simple as calling postMessage on the source property of the message event, using the origin property as the targetOrigin.</p>
+            <p>Replying to the parent window is as simple as calling postMessage on the source property of the message event, using the origin property as the targetOrigin. The parent page should then also implement an eventListener for the "message" event.</p>
             <pre><code class="language-javascript">/**
 * This code recieves messages on the iframe, and sends back a response
 * 
