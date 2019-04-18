@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Using postMessage</title>
+        <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">
+        <link type="text/css" rel="stylesheet" href="css/style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="css/prism.css">
+    </head>
+    <body>
+        <div id="wrapper">
+            <h1>Cross-origin Iframe Communication</h1>
+            <br/>
+            <p>
+                Iframes are protected by the same origin policy. This means that if an iframe and its parent are from the same domain, they have access to each others' document and window properties.
+                If they are not from the same domain, which is often the case, they have no information about each other. A parent window can set the location on the iframe, but that's about it.
+            </p>
+            <p>
+                Often you will want some form of communication between an iframe and a page it's in. This is why the postMessage function exists. If both the parent and the iframe agree to send ad recieve messages, they can communicate with each other.
+                There are however some security concerns if the way in which they comunicate isn't implemented properly, so I'm going to explain which concerns there are and how to mitigate them. Let's start by creating a parent HTML document and an iframe to go inside it.
+            </p>
+            <h3>Parent window's HTML</h3>
+            <br/>
+            <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;Parent window&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;iframe src=&quot;iframe.html&quot; id=&quot;iframe&quot; name=&quot;iframe&quot; width=&quot;500&quot; height=&quot;500&quot;&gt;&lt;/iframe&gt;
+        &lt;script src=&quot;parent.js&quot;&gt;&lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+            </code></pre>
+            <br/>
+            <h3>Iframe's HTML</h3>
+            <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;
+            Iframe page
+        &lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;H1&gt;This is an iframe that can recieve messages&lt;/H1&gt;
+        &lt;script src=&quot;iframe.js&quot;&gt;&lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            <br/>
+            <h2>Javascript</h2>
+            <p>As you can see, both files refer to their respective script files. So let's continue by making these. We'll start with the parent window's code.</p>
+            <p>Note that we are only sending messages once the onload event of the iframe has fired. This is important, because the iframe's document object changes when it has loaded the page.</p>
+            <p>The message sent with postMessage can be any object according to the spec. For compatibility reasons though (thank you IE), it's good practice to only send strings. Thats why <code class="language-javascript">JSON.stringify</code> is used.</code></p>
+            <p>In the call to <code class="language-javascript">postMessage</code> itself, it's important to notice the second argument. This is called the targetOrigin. This argument can be set to a specific domain or *. If the domain of the iframe doesn't match the targetOrigin, an error will b thrown and no message will be sent. As you can't check the window.location property of a cross-origin iframe, <b>this is the only way to make sure that your data is sent to the correct domain.</b></p>
+            <pre><code class="language-javascript">/**
+* This code is used on the parent window to send and recieve messages from an iframe
+* 
+*/
+var iframe = document.getElementById(&quot;iframe&quot;)
+
+//Wait until iframe loads before sending messages
+iframe.onload = sendMessages
+
+//Send a message using postMessage
+function sendMessages(){
+    var message = {
+        action: &quot;action&quot;,
+        data: &quot;data&quot;
+    }
+
+    //postMessage is a function defined on the window object of an iframe
+    let win = iframe.contentWindow;
+    //You can also get the iframe from the window.frames object if you give it a name attribute
+    win = window.frames.iframe.contentWindow;
+    
+    //The data that is sent needs to be a string for compatibility with IE
+    //Syntax is postMessage(data, targetOrigin)
+    win.postMessage(JSON.stringify(message), &quot;https://example.com&quot;)
+}
+            </code></pre>
+            <br/>
+            <p>Now let's take a look at the javascript code on the reciever's side.</p>
+            <p>To be able to recieve messages, an eventListener for the "message" event has to be defined. The event contains three different properties:</p>
+            <table class="table">
+                <tr>
+                    <th>Property</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>origin</td>
+                    <td>Contains the domain from which the message originated. in this case that would be "http://example.com"</td>
+                </tr>
+                <tr>
+                    <td>source</td>
+                    <td>Contains a reference to th window object that sent the message. This makes two-way communication easy.</td>
+                </tr>
+                <tr>
+                    <td>data</td>
+                    <td>contains the data sent by the call to postMessage</td>
+                </tr>
+            </table>
+            <br/>
+            <p>To only accept messages from trusted sources, <b>you should always check the origin property.</b> After you have done this, <b>it is important to also check if the recieved message uses the correct syntax.</b> It is possible that a trusted oigin has an XSS vulnerability, which will allow an attacker to craft messages sent via postMessage. Finally, if any of the data recieved is reflected back to the DOM, <b>make sure to correctly sanitize the values.</b></p>
+            <p>Replying to the parent window is as simple as calling postMessage on the source property of the message event, using the origin property as the targetOrigin.</p>
+            <pre><code class="language-javascript">/**
+* This code recieves messages on the iframe, and sends back a response
+* 
+*/
+const ACTIONS = [&quot;action&quot;]
+
+//Listen for the &quot;message&quot; event
+window.addEventListener(&quot;message&quot;, handleMessage, false)
+
+function handleMessage(event){
+    //Check the origin of the sent message
+    if(event.origin !== &quot;https://example.com&quot;){
+        console.log(&quot;My mummy says I&apos;m not allowed to talk to strangers&quot;)
+        return
+    }
+
+    //HANDLE EVENT HERE
+    var data = JSON.parse(event.data);
+
+    //Check the syntax of the sent message
+    if(!data.action || ACTIONS.indexOf(data.action) === -1){
+        console.log(&quot;Whoops, looks like that action isn&apos;t valid!&quot;)
+        return
+    }
+
+    //
+    //Do something with the data here, making sure to sanitize it if reflecting to the DOM.
+    //
+
+    //Send a message back using event.source, providing event.origin as the target.
+    event.source.postMessage(&quot;here&apos;s your reply!&quot;, event.origin);
+
+}
+            </code></pre>
+        </div>
+        <script src="js/prism.js"></script>
+    </body>
+</html>
