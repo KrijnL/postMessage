@@ -137,13 +137,14 @@ function handleMessage(event){
 }
             </code></pre>
             <h2>Recap</h2>
-            <p>The <b>sender</b> should always specify the <b>targetOrigin</b>. Try to never use "*", because you may pe putting yourself at risk.</p>
+            <p>The <b>sender</b> should always specify the <b>targetOrigin</b>. Try to never use "*" because you may pe putting yourself  <a href="https://labs.detectify.com/2016/12/15/postmessage-xss-on-a-million-sites/">at risk</a>.</p>
             <p>The <b>reciever</b> should:</p>
             <ol>
                 <li>Verify the sender's <b>identity</b> via the origin property</li>
                 <li>Verify the <b>syntax</b> of the recieved message</li>
                 <li><b>Sanitize</b> the recieved data if reflecting to the DOM</li>
             </ol>
+            <p>If you follow these guidelines, your implementation of postMessage should be secure.</p>
         </div>
         <script src="js/prism.js"></script>
     </body>
