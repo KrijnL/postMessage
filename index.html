@@ -52,7 +52,7 @@
             <p>As you can see, both files refer to their respective script files. So let's continue by making these. We'll start with the parent window's code.</p>
             <p>Note that we are only sending messages once the onload event of the iframe has fired. This is important, because the iframe's document object changes when it has loaded the page.</p>
             <p>The message sent with postMessage can be any object according to the spec. For compatibility reasons though (thank you IE), it's good practice to only send strings. Thats why <code class="language-javascript">JSON.stringify</code> is used.</code></p>
-            <p>In the call to <code class="language-javascript">postMessage</code> itself, it's important to notice the second argument. This is called the targetOrigin. This argument can be set to a specific domain or *. If the domain of the iframe doesn't match the targetOrigin, an error will b thrown and no message will be sent. As you can't check the window.location property of a cross-origin iframe, <b>this is the only way to make sure that your data is sent to the correct domain.</b></p>
+            <p>In the call to <code class="language-javascript">postMessage</code> itself, it's important to notice the second argument. This is called the targetOrigin. This argument can be set to a specific domain or *. If the domain of the iframe doesn't match the targetOrigin, an error will be thrown and no message will be sent. As you can't check the window.location property of a cross-origin iframe, <b>this is the only way to make sure that your data is sent to the correct domain.</b></p>
             <pre><code class="language-javascript">/**
 * This code is used on the parent window to send and recieve messages from an iframe
 * 
