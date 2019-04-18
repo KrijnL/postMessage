@@ -21,7 +21,6 @@
                 There are however some security concerns if the way in which they comunicate isn't implemented properly, so I'm going to explain which concerns there are and how to mitigate them. Let's start by creating a parent HTML document and an iframe to go inside it.
             </p>
             <h3>Parent window's HTML</h3>
-            <br/>
             <pre><code class="language-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
     &lt;head&gt;
@@ -137,6 +136,14 @@ function handleMessage(event){
 
 }
             </code></pre>
+            <h2>Recap</h2>
+            <p>The <b>sender</b> should always specify the <b>targetOrigin</b>. Try to never use "*", because you may pe putting yourself at risk.</p>
+            <p>The <b>reciever</b> should:</p>
+            <ol>
+                <li>Verify the sender's <b>identity</b> via the origin property</li>
+                <li>Verify the <b>syntax</b> of the recieved message</li>
+                <li><b>Sanitize</b> the recieved data if reflecting to the DOM</li>
+            </ol>
         </div>
         <script src="js/prism.js"></script>
     </body>
