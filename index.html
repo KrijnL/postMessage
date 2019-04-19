@@ -14,6 +14,9 @@
             <h1>Cross-origin Iframe Communication</h1>
             <p class="text-muted">By Krijn Luijendijk</p>
             <br/>
+            <h4>TL;DR</h4>
+            <p>When communicating between cross-origin iframes, use postMessage. Making sure you set the targetOrigin on the sender's side. On the reciever's end, you should check the origin of the message, the syntax of it and you should sanitize the values before using them.</p>
+            <br/>
             <p>
                 Iframes are protected by the same origin policy. This means that if an iframe and its parent are from the same domain, they have access to each others' document and window properties.
                 If they are not from the same domain, which is often the case, they have no information about each other. A parent window can set the location on the iframe, but that's about it.
